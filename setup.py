@@ -107,18 +107,6 @@ ext_modules = []
 
 extras = {}
 
-ext_modules.append(
-    CUDAExtension(
-        name="fused_layer_norm_cuda",
-        sources=["csrc/layer_norm_cuda.cpp", "csrc/layer_norm_cuda_kernel.cu"],
-        extra_compile_args={
-            "cxx": ["-O3"] + version_dependent_macros,
-            "nvcc": ["-maxrregcount=50", "-O3", "--use_fast_math"] + version_dependent_macros,
-        },
-    )
-)
-
-
 # if "--cpp_ext" in sys.argv or "--cuda_ext" in sys.argv:
 #     if TORCH_MAJOR == 0:
 #         raise RuntimeError(
@@ -147,6 +135,18 @@ if (TORCH_MAJOR > 1) or (TORCH_MAJOR == 1 and TORCH_MINOR > 4):
 version_dependent_macros = version_ge_1_1 + version_ge_1_3 + version_ge_1_5
 
 _, bare_metal_version = get_cuda_bare_metal_version(CUDA_HOME)
+
+ext_modules.append(
+    CUDAExtension(
+        name="fused_layer_norm_cuda",
+        sources=["csrc/layer_norm_cuda.cpp", "csrc/layer_norm_cuda_kernel.cu"],
+        extra_compile_args={
+            "cxx": ["-O3"] + version_dependent_macros,
+            "nvcc": ["-maxrregcount=50", "-O3", "--use_fast_math"] + version_dependent_macros,
+        },
+    )
+)
+
 
 # if "--distributed_adam" in sys.argv:
 #     sys.argv.remove("--distributed_adam")
